@@ -26,6 +26,20 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(cookies[0]["sameSite"], "None")
         self.assertEqual(cookies[0]["expires"], 2000000000)
 
+    def test_save_login_cookies_and_preserve_backup_if_not_signed_in(self):
+        path = Path(_temp.name) / "saved.json"
+        class Context:
+            def __init__(self, cookies):
+                self.items = cookies
+            def cookies(self, urls):
+                return self.items
+        cookies = [{"name": "auth_token", "value": "fake", "domain": ".x.com", "path": "/"}]
+        login.save_cookies(Context(cookies), path)
+        self.assertEqual(login.load_cookies(path)[0]["value"], "fake")
+        with self.assertRaises(RuntimeError):
+            login.save_cookies(Context([]), path)
+        self.assertEqual(login.load_cookies(path)[0]["value"], "fake")
+
     def test_reject_unrelated_cookie_export(self):
         path = Path(_temp.name) / "unrelated.json"
         path.write_text('[{"domain": "example.com"}]')

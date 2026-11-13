@@ -76,6 +76,11 @@ async def tab():
             _ctx = None
             _ctx = await _launch_ctx()
             _ctx.set_default_timeout(20000)  # fail fast instead of hanging 30s
+            existing = await _ctx.cookies(["https://x.com", "https://twitter.com"])
+            backup = DATA / "cookies.json"
+            if not any(c.get("name") == "auth_token" and c.get("value") for c in existing) and backup.exists():
+                from login import load_cookies
+                await _ctx.add_cookies(load_cookies(backup))
             _page = _ctx.pages[0] if _ctx.pages else await _ctx.new_page()  # reuse the blank start page
         yield _page
 
