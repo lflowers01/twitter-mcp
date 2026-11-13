@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.py[cod]
+.env
+cookies.json
+*profile*/
+queue.json
+actions-log.json
+pip/
